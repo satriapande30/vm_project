@@ -1,3 +1,5 @@
+#TRAINING DAN TESTING DATASET
+
 import pandas as pd
 import numpy as np
 import os
