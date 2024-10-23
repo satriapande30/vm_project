@@ -1,3 +1,5 @@
+#MENGUMPULKAN DATASET SESUAI DENGAN CLASS POSE YANG SUDAH DITENTUKAN
+
 import cv2
 import os
 import numpy as np
