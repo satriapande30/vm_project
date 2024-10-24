@@ -148,7 +148,7 @@ The system provides comprehensive performance visualization including:
 - Model performance comparison
 - Real-time FPS counter
 
-### Architecture:
+## 🏢 Architecture:
 1. **Hand Detection**: Uses MediaPipe for real-time hand landmark detection
 2. **Feature Extraction**: Calculates distances between key landmarks
 3. **Gesture Classification**: SVM model classifies hand poses
