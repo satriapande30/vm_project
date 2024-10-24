@@ -4,20 +4,23 @@
 ![MediaPipe](https://img.shields.io/badge/MediaPipe-0F9D58?style=for-the-badge&logo=Google&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
 
-A sophisticated computer vision-based system that allows users to control their mouse cursor through hand gestures. This project combines the power of MediaPipe for hand tracking, OpenCV for image processing, and Machine Learning for gesture recognition.
+Control your computer mouse using hand poses! This project uses computer vision and machine learning to transform your hand movements into mouse controls, creating a natural and intuitive interface for computer interaction.
 
 ## ✨ Features
 
 - 🖱️ Control mouse cursor with hand movements
-- 👆 Support for multiple hand gestures:
-  - V Pose: Track cursor
-  - Middle Finger: Left click
-  - Index Finger: Right click
-  - Fist: Start drag
-  - Palm: Release drag
+- 👆 Support for multiple hand poses:
+| Gesture | Action |
+|---------|--------|
+| ✌️ V Pose | Mouse Movement |
+| 👆 Middle Finger | Left Click |
+| ☝️ Index Finger | Right Click |
+| ✊ Fist | Start Drag |
+| 🖐️ Palm | Release Drag |
 - 🎯 Precise tracking within defined boundaries
 - 🔄 Real-time gesture recognition
 - 📊 Performance visualization and analytics
+- 🎬 Smooth gesture transitions
 - 📝 Comprehensive logging system
 
 ## 🛠️ Technology Stack
@@ -55,6 +58,9 @@ virtual-mouse-control/
 │   ├── processing_dataset.py # Dataset processing
 │   ├── train_dataset.py      # Model training
 │   └── virtual_mouse.py      # Main application
+├── requirements.txt        # Dependencies
+├── LICENSE                 # MIT License
+├── README.MD
 ```
 
 ## 📋 Prerequisites
@@ -116,6 +122,14 @@ The system provides comprehensive performance visualization including:
 - Classification report
 - Model performance comparison
 - Real-time FPS counter
+
+### Architecture:
+1. **Hand Detection**: Uses MediaPipe for real-time hand landmark detection
+2. **Feature Extraction**: Calculates distances between key landmarks
+3. **Gesture Classification**: SVM model classifies hand poses
+4. **Motion Tracking**: Smooth tracking with boundary detection
+5. **Action Execution**: Converts gestures to mouse actions
+
 
 ## 📝 Logging System
 
