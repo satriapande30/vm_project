@@ -6,24 +6,25 @@
 
 Control your computer mouse using hand poses! This project uses computer vision and machine learning to transform your hand movements into mouse controls, creating a natural and intuitive interface for computer interaction.
 
-## ✨ Features
+## 🌟 Features
 
-- 🖱️ Control mouse cursor with hand movements
-- 👆 Support for multiple hand poses:
-  
+- **Real-time Hand Detection**: Utilizes MediaPipe for accurate hand landmark detection
+- **Gesture Recognition**: SVM-based classification for multiple hand poses
+- **Smooth Movement**: Implements movement smoothing algorithms for precise cursor control
+- **Boundary Detection**: Smart boundary system to prevent unintended movements
+- **Performance Metrics**: Real-time FPS counter and system status monitoring
+- **Comprehensive Logging**: Detailed logging system for debugging and analysis
+
+## 🤚 Supported Gestures
+
 | Gesture | Action |
 |---------|--------|
-| ✌️ V Pose | Mouse Movement |
-| 👆 Middle Finger | Left Click |
+| ✌️ V Pose | Cursor Tracking |
+| 🖕 Middle Finger | Left Click |
 | ☝️ Index Finger | Right Click |
-| ✊ Fist | Start Drag |
-| 🖐️ Palm | Release Drag |
+| ✊ Fist | Drag Start |
+| 🖐️ Palm | Drag Release |
 
-- 🎯 Precise tracking within defined boundaries
-- 🔄 Real-time gesture recognition
-- 📊 Performance visualization and analytics
-- 🎬 Smooth gesture transitions
-- 📝 Comprehensive logging system
 
 ## 🛠️ Technology Stack
 
@@ -36,7 +37,7 @@ Control your computer mouse using hand poses! This project uses computer vision 
 - **Pandas**: Data manipulation
 - **Matplotlib & Seaborn**: Data visualization
 
-## 🎯 Project Structure
+## 📂 Project Structure
 
 ```
 virtual-mouse-control/
@@ -106,6 +107,28 @@ virtual-mouse-control/
    ```bash
    python virtual_mouse.py
    ```
+
+## 💡 Key Components
+
+### Data Collection
+- Custom dataset creation with various hand poses
+- Multiple distances and angles for robust training
+- Automatic directory structure creation
+
+### Data Processing
+- MediaPipe hand landmark detection
+- Feature extraction using geometric relationships
+- Data augmentation for improved robustness
+
+### Model Training
+- SVM classifier with RBF kernel
+- Cross-validation for model evaluation
+- Performance visualization and metrics
+
+### Virtual Mouse System
+- Real-time hand tracking and gesture recognition
+- Smooth cursor movement with configurable sensitivity
+- Boundary detection for controlled operation area
 
 ## 🎮 Usage Guide
 
