@@ -148,4 +148,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Satria Pande - [@satriapande30](https://www.instagram.com/satriapande30/) - satria.pande30@gmail.com
 
-Project Link: [https://github.com/yourusername/virtual-mouse-control](https://github.com/yourusername/virtual-mouse-control)
+Project Link: [https://github.com/satriapande30/vm_project/](https://github.com/satriapande30/vm_project/)
