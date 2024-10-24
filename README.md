@@ -37,15 +37,24 @@ A sophisticated computer vision-based system that allows users to control their 
 virtual-mouse-control/
 ├── data/
 │   └── raw/               # Raw dataset images
+│      ├──fist
+│      ├──palm
+│      ├──index_finger
+│      ├──middle_finger
+│      ├──v_pose
+│      ├──v_pose_closed
+│      └──random
 ├── output/
+│   ├──error_images
 │   ├── features/          # Extracted features
 │   ├── log/              # System logs
 │   ├── model/            # Trained models
 │   └── visualization/    # Performance graphs
-├── collect_dataset.py    # Dataset collection script
-├── processing_dataset.py # Dataset processing
-├── train_dataset.py      # Model training
-└── virtual_mouse.py      # Main application
+├──src/
+│   ├── collect_dataset.py    # Dataset collection script
+│   ├── processing_dataset.py # Dataset processing
+│   ├── train_dataset.py      # Model training
+│   └── virtual_mouse.py      # Main application
 ```
 
 ## 📋 Prerequisites
