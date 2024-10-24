@@ -10,6 +10,7 @@ Control your computer mouse using hand poses! This project uses computer vision 
 
 - 🖱️ Control mouse cursor with hand movements
 - 👆 Support for multiple hand poses:
+  
 | Gesture | Action |
 |---------|--------|
 | ✌️ V Pose | Mouse Movement |
@@ -17,6 +18,7 @@ Control your computer mouse using hand poses! This project uses computer vision 
 | ☝️ Index Finger | Right Click |
 | ✊ Fist | Start Drag |
 | 🖐️ Palm | Release Drag |
+
 - 🎯 Precise tracking within defined boundaries
 - 🔄 Real-time gesture recognition
 - 📊 Performance visualization and analytics
