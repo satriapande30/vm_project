@@ -20,6 +20,7 @@ Control your computer mouse using hand poses! This project uses computer vision 
 | Gesture | Action |
 |---------|--------|
 | ✌️ V Pose | Cursor Tracking |
+| ✌️ V Pose Closed | Doubble Click |
 | 🖕 Middle Finger | Left Click |
 | ☝️ Index Finger | Right Click |
 | ✊ Fist | Drag Start |
@@ -135,6 +136,7 @@ virtual-mouse-control/
 1. **Tracking Area**: Keep your hand within the visible boundary box for optimal tracking
 2. **Supported Gestures**:
    - Make a "V" sign to enable cursor tracking
+   - Make a "V Closed" sign to enable double click
    - Show middle finger for left click
    - Show index finger for right click
    - Make a fist to start dragging
