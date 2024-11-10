@@ -65,6 +65,7 @@ class VirtualMouseSystem:
             
             self.pose_states = {
                 'v_pose': False,
+                'v_pose_closed': False,
                 'middle_finger': False,
                 'index_finger': False,
                 'fist': False,
@@ -75,13 +76,14 @@ class VirtualMouseSystem:
             
             # Colors for visualization (BGR format)
             self.colors = {
-                'v_pose': (0, 255, 0),      # Green
-                'middle_finger': (0, 0, 255), # Red
-                'index_finger': (255, 0, 0),  # Blue
-                'fist': (0, 255, 255),       # Yellow
-                'palm': (255, 0, 255),       # Magenta
-                'default': (128, 128, 128),   # Gray
-                'boundary': (255, 165, 0)     # Orange for boundary
+                'v_pose': (0, 255, 0),         # Bright Green - for cursor movement
+                'v_pose_closed': (255, 0, 255), # Magenta - for double click
+                'middle_finger': (0, 0, 255),   # Red - for left click
+                'index_finger': (255, 165, 0),  # Blue Orange - for right click
+                'fist': (255, 255, 0),         # Cyan - for drag start
+                'palm': (128, 0, 255),         # Purple - for drag release
+                'default': (169, 169, 169),     # Dark Gray - for unrecognized poses
+                'boundary': (0, 140, 255)       # Dark Orange - for boundary
             }
             
             # Setup logging
@@ -317,12 +319,16 @@ class VirtualMouseSystem:
                                [self.boundary_top, self.boundary_bottom], 
                                [0, self.screen_height])
             
-            # Rest of the mouse action code remains the same...
+            # Mouse action execution
             if pose == 'v_pose':
                 if rising_edge:
                     self.logger.info("Tracking mode activated")
                 if self.pose_states['v_pose']:
                     pyautogui.moveTo(screen_x, screen_y, duration=0.1)
+            
+            elif pose == 'v_pose_closed' and rising_edge:
+                self.logger.info("Double click executed")
+                pyautogui.doubleClick()
             
             elif pose == 'middle_finger' and rising_edge:
                 self.logger.info("Left click executed")
