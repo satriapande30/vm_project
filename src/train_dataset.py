@@ -10,7 +10,7 @@ import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, precision_score, recall_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 from joblib import Parallel, delayed
@@ -22,6 +22,8 @@ class HandPoseTrainer:
         self.setup_directories()
         self.logger = self._setup_logger()
         self.scaler = StandardScaler()
+        # Define class names for hand poses
+        self.pose_classes = ['fist', 'palm', 'index_finger', 'middle_finger', 'v_pose', 'v_pose_closed', 'random']
         
     def setup_directories(self):
         """Membuat direktori yang diperlukan"""
@@ -175,44 +177,123 @@ class HandPoseTrainer:
         return svm, (X_train, X_test, y_train, y_test)
 
     def visualize_results(self, y_true, y_pred, train_score, test_score):
-        """Membuat visualisasi hasil training"""
+        """Membuat visualisasi hasil training yang lebih komprehensif"""
         self.logger.info("Membuat visualisasi hasil...")
         
-        # 1. Confusion Matrix
-        plt.figure(figsize=(10, 8))
+        # 1. Enhanced Confusion Matrix
+        plt.figure(figsize=(12, 10))
         cm = confusion_matrix(y_true, y_pred)
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-        plt.title('Confusion Matrix')
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
+        
+        # Create confusion matrix heatmap with class names
+        sns.heatmap(cm, 
+                   annot=True, 
+                   fmt='d', 
+                   cmap='Blues',
+                   xticklabels=self.pose_classes,
+                   yticklabels=self.pose_classes)
+        plt.title('Confusion Matrix - Hand Pose Classification', pad=20)
+        plt.xlabel('Predicted Pose')
+        plt.ylabel('True Pose')
+        
+        # Rotate x-axis labels for better readability
+        plt.xticks(rotation=45, ha='right')
+        plt.yticks(rotation=0)
+        
+        # Adjust layout to prevent label cutoff
+        plt.tight_layout()
         plt.savefig('output/visualization/1confusion_matrix.png')
         plt.close()
         
-        # 2. Classification Report Visualization
-        report = classification_report(y_true, y_pred, output_dict=True)
+        # 2. Detailed Classification Report
+        report = classification_report(y_true, y_pred, 
+                                    target_names=self.pose_classes,
+                                    output_dict=True)
         report_df = pd.DataFrame(report).transpose()
         
-        plt.figure(figsize=(10, 6))
-        sns.heatmap(report_df.iloc[:-3, :3].astype(float), annot=True, cmap='YlOrRd')
-        plt.title('Classification Report Heatmap')
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(report_df.iloc[:-3, :3].astype(float), 
+                    annot=True, 
+                    cmap='YlOrRd',
+                    xticklabels=['Precision', 'Recall', 'F1-Score'],
+                    yticklabels=self.pose_classes)
+        plt.title('Classification Metrics by Class')
+        plt.tight_layout()
         plt.savefig('output/visualization/1classification_report.png')
         plt.close()
         
-        # 3. Training Performance
-        plt.figure(figsize=(8, 6))
-        scores = [train_score, test_score]
-        bars = plt.bar(['Training', 'Testing'], scores)
-        plt.title('Model Performance')
-        plt.ylabel('Accuracy')
+        # 3. Overall Model Performance Metrics
+        plt.figure(figsize=(10, 6))
+        metrics = {
+            'Accuracy': accuracy_score(y_true, y_pred),
+            'Precision': precision_score(y_true, y_pred, average='weighted'),
+            'Recall': recall_score(y_true, y_pred, average='weighted'),
+            'F1-Score': f1_score(y_true, y_pred, average='weighted')
+        }
         
-        # Tambahkan nilai di atas bar
+        bars = plt.bar(metrics.keys(), metrics.values())
+        plt.title('Overall Model Performance Metrics')
+        plt.ylabel('Score')
+        plt.ylim(0, 1.0)
+        
+        # Add value labels on top of bars
         for bar in bars:
             height = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2., height,
                     f'{height:.4f}',
                     ha='center', va='bottom')
         
+        plt.tight_layout()
+        plt.savefig('output/visualization/1overall_metrics.png')
+        plt.close()
+        
+        # 4. Training vs Testing Performance Comparison
+        plt.figure(figsize=(10, 6))
+        performance_data = {
+            'Training': train_score,
+            'Testing': test_score
+        }
+        
+        bars = plt.bar(performance_data.keys(), performance_data.values(),
+                      color=['#2ecc71', '#3498db'])
+        plt.title('Training vs Testing Accuracy')
+        plt.ylabel('Accuracy Score')
+        plt.ylim(0, 1.0)
+        
+        # Add value labels on top of bars
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:.4f}',
+                    ha='center', va='bottom')
+        
+        plt.tight_layout()
         plt.savefig('output/visualization/1model_performance.png')
+        plt.close()
+        
+        # 5. Per-Class Performance Metrics
+        plt.figure(figsize=(15, 8))
+        
+        # Calculate per-class metrics
+        class_precision = precision_score(y_true, y_pred, average=None)
+        class_recall = recall_score(y_true, y_pred, average=None)
+        class_f1 = f1_score(y_true, y_pred, average=None)
+        
+        x = np.arange(len(self.pose_classes))
+        width = 0.25
+        
+        plt.bar(x - width, class_precision, width, label='Precision')
+        plt.bar(x, class_recall, width, label='Recall')
+        plt.bar(x + width, class_f1, width, label='F1-Score')
+        
+        plt.xlabel('Hand Pose Classes')
+        plt.ylabel('Score')
+        plt.title('Performance Metrics per Class')
+        plt.xticks(x, self.pose_classes, rotation=45, ha='right')
+        plt.legend()
+        plt.ylim(0, 1.0)
+        
+        plt.tight_layout()
+        plt.savefig('output/visualization/1per_class_metrics.png')
         plt.close()
 
 if __name__ == "__main__":
