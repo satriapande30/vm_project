@@ -190,23 +190,89 @@ class VirtualMouseSystem:
             self.logger.error(f"Error predicting pose: {str(e)}")
             return None
 
-    def draw_pose_info(self, image, pose, probability=None):
-        """Draw pose information and confidence"""
-        if pose:
-            color = self.colors.get(pose, self.colors['random'])
-            info_text = f"Detected Pose: {pose}"
-            if probability:
-                info_text += f" ({probability:.2f}%)"
+    def draw_boundary_frame(self, image, hand_landmarks=None):
+        """Draw boundary frame to indicate tracking limits"""
+        # Draw main boundary rectangle
+        cv2.rectangle(
+            image,
+            (self.boundary_left, self.boundary_top),
+            (self.boundary_right, self.boundary_bottom),
+            self.colors['boundary'],
+            2
+        )
+        
+        # Add labels
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.6
+        font_thickness = 2
+        padding = 10
+        
+        # Add "Tracking Area" label
+        cv2.putText(
+            image,
+            "Tracking Area",
+            (self.boundary_left, self.boundary_top - padding),
+            font,
+            font_scale,
+            self.colors['boundary'],
+            font_thickness
+        )
+        
+        # Add warning text if hand is outside boundaries
+        if hand_landmarks:
+            hand_x = int(hand_landmarks.landmark[9].x * image.shape[1])
+            hand_y = int(hand_landmarks.landmark[9].y * image.shape[0])
             
+            if (hand_x < self.boundary_left or hand_x > self.boundary_right or
+                hand_y < self.boundary_top or hand_y > self.boundary_bottom):
+                cv2.putText(
+                    image,
+                    "Warning: Hand outside tracking area!",
+                    (10, image.shape[0] - 20),
+                    font,
+                    font_scale,
+                    (0, 0, 255),  # Red color for warning
+                    font_thickness
+                )
+
+    def draw_bounding_box(self, image, hand_landmarks, pose):
+        """Draw bounding box around hand"""
+        h, w, _ = image.shape
+        x_coords = []
+        y_coords = []
+        
+        # Get landmark coordinates
+        for landmark in hand_landmarks.landmark:
+            x_coords.append(int(landmark.x * w))
+            y_coords.append(int(landmark.y * h))
+        
+        # Calculate bounding box with padding
+        padding = 20
+        x1 = max(0, min(x_coords) - padding)
+        y1 = max(0, min(y_coords) - padding)
+        x2 = min(w, max(x_coords) + padding)
+        y2 = min(h, max(y_coords) + padding)
+        
+        # Get color based on pose
+        color = self.colors.get(pose, self.colors['random']) if pose else self.colors['random']
+        
+        # Draw bounding box
+        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+        
+        # Add Pose label
+        if pose:
+            label = f"Pose: {pose}"
             cv2.putText(
                 image,
-                info_text,
-                (10, 60),
+                label,
+                (x1, y1 - 10),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.6,
                 color,
                 2
             )
+        
+        return x1, y1, x2, y2
 
     def run(self):
         pTime = 0
@@ -229,29 +295,24 @@ class VirtualMouseSystem:
                 results = self.hands.process(rgb_image)
 
                 # Draw boundary frame
-                cv2.rectangle(
-                    image,
-                    (self.boundary_left, self.boundary_top),
-                    (self.boundary_right, self.boundary_bottom),
-                    self.colors['boundary'],
-                    2
-                )
+                if results.multi_hand_landmarks:
+                    hand_landmarks = results.multi_hand_landmarks[0]
+                    self.draw_boundary_frame(image, hand_landmarks)
+                else:
+                    self.draw_boundary_frame(image)
 
                 if results.multi_hand_landmarks:
-                    hand_landmarks = results.multi_hand_landmarks[0]  # Use first hand only
+                    hand_landmarks = results.multi_hand_landmarks[0]
                     
-                    # Calculate features and predict pose
                     features = self.calculate_finger_distances(hand_landmarks)
                     pose = self.predict_pose(features)
                     
-                    # Smooth predictions
                     if pose:
                         self.pose_buffer.append(pose)
                         smooth_pose = max(set(self.pose_buffer), key=self.pose_buffer.count)
                     else:
                         smooth_pose = None
 
-                    # Draw visualizations
                     self.mp_drawing.draw_landmarks(
                         image,
                         hand_landmarks,
@@ -260,22 +321,23 @@ class VirtualMouseSystem:
                         self.connection_drawing_spec
                     )
 
-                    # Calculate and execute mouse actions
+                    if smooth_pose:
+                        self.draw_bounding_box(image, hand_landmarks, smooth_pose)
+
                     if smooth_pose:
                         hand_center = (
                             int(hand_landmarks.landmark[9].x * image.shape[1]),
                             int(hand_landmarks.landmark[9].y * image.shape[0])
                         )
                         self.execute_mouse_action(smooth_pose, hand_center)
-                        self.draw_pose_info(image, smooth_pose)
 
                 # Calculate and display FPS
                 cTime = time.time()
-                fps = 1 / (cTime - pTime)
+                self.fps = 1 / (cTime - pTime)
                 pTime = cTime
                 cv2.putText(
                     image,
-                    f'FPS: {int(fps)}',
+                    f'FPS: {int(self.fps)}',
                     (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1,
@@ -340,7 +402,10 @@ class VirtualMouseSystem:
             elif pose == 'fist':
                 if pose != self.prev_pose:
                     pyautogui.mouseDown()
-                    self.logger.info(f"Starting drag to: ({screen_x}, {screen_y})")
+                    self.logger.info(f"Starting drag at: ({screen_x}, {screen_y})")
+                else:
+                    # Menampilkan koordinat saat proses drag
+                    self.logger.info(f"Moving drag to: ({screen_x}, {screen_y})")
                 pyautogui.moveTo(screen_x, screen_y, duration=0.1)
             
             elif pose == 'palm' and pose != self.prev_pose:
