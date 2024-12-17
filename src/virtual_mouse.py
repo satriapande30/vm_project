@@ -52,6 +52,10 @@ class VirtualMouseSystem:
 
     def __init__(self):
         try:
+            # Initialize camera dimensions
+            self.camera_width = 1920  # Diperluas dari default
+            self.camera_height = 1080  # Diperluas dari default
+            
             # Initialize pose classes
             self.pose_classes = ['fist', 'palm', 'index_finger', 'middle_finger', 
                                'v_pose', 'v_pose_closed', 'random']
@@ -60,11 +64,11 @@ class VirtualMouseSystem:
             self.pose_buffer = deque(maxlen=5)
             self.smoothing_factor = 0.5
             
-            # Boundary coordinates
-            self.boundary_left = 100
-            self.boundary_right = 540
-            self.boundary_top = 100
-            self.boundary_bottom = 380
+            # Boundary coordinates (disesuaikan dengan ukuran kamera baru)
+            self.boundary_left = int(self.camera_width * 0.1)  # 10% dari lebar
+            self.boundary_right = int(self.camera_width * 0.9) # 90% dari lebar
+            self.boundary_top = int(self.camera_height * 0.1)  # 10% dari tinggi
+            self.boundary_bottom = int(self.camera_height * 0.9) # 90% dari tinggi
             
             # Initialize pose states
             self.pose_states = {pose: False for pose in self.pose_classes}
@@ -280,9 +284,17 @@ class VirtualMouseSystem:
             self.logger.info("Starting virtual mouse system...")
             
             cap = cv2.VideoCapture(0)
+            # Set resolusi kamera
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.camera_width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.camera_height)
+            
             if not cap.isOpened():
                 raise Exception("Could not open camera")
             
+            # Buat window dengan ukuran yang dapat disesuaikan
+            cv2.namedWindow('Virtual Mouse', cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('Virtual Mouse', self.camera_width, self.camera_height)
+
             while True:
                 ret, frame = cap.read()
                 if not ret:
