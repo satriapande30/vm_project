@@ -80,7 +80,7 @@ virtual-mouse-control/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/satriapande30/virtual-mouse-control.git
+   git clone https://github.com/satriapande30/vm_project.git
    cd virtual-mouse-control
    ```
 
