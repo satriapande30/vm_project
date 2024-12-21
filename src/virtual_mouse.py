@@ -280,6 +280,7 @@ class VirtualMouseSystem:
 
     def run(self):
         pTime = 0
+        current_action = "No Action"  # Tambahkan variabel untuk melacak aksi saat ini
         try:
             self.logger.info("Starting virtual mouse system...")
             
@@ -322,8 +323,23 @@ class VirtualMouseSystem:
                     if pose:
                         self.pose_buffer.append(pose)
                         smooth_pose = max(set(self.pose_buffer), key=self.pose_buffer.count)
+                        
+                        # Update current action based on pose
+                        if smooth_pose == 'v_pose':
+                            current_action = "Moving Cursor"
+                        elif smooth_pose == 'v_pose_closed':
+                            current_action = "Double Click"
+                        elif smooth_pose == 'middle_finger':
+                            current_action = "Left Click"
+                        elif smooth_pose == 'index_finger':
+                            current_action = "Right Click"
+                        elif smooth_pose == 'fist':
+                            current_action = "Drag Mode"
+                        elif smooth_pose == 'palm':
+                            current_action = "Release Drag"
                     else:
                         smooth_pose = None
+                        current_action = "No Action"
 
                     self.mp_drawing.draw_landmarks(
                         image,
@@ -347,10 +363,25 @@ class VirtualMouseSystem:
                 cTime = time.time()
                 self.fps = 1 / (cTime - pTime)
                 pTime = cTime
+                
+                # Display FPS on left side
                 cv2.putText(
                     image,
                     f'FPS: {int(self.fps)}',
                     (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 255, 0),
+                    2
+                )
+                
+                # Display current action on right side
+                text_size = cv2.getTextSize(current_action, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+                text_x = image.shape[1] - text_size[0] - 10  # 10 pixels padding from right
+                cv2.putText(
+                    image,
+                    current_action,
+                    (text_x, 30),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1,
                     (0, 255, 0),
